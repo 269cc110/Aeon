@@ -1,0 +1,2 @@
+# Aeon
+Simple Discord bot
