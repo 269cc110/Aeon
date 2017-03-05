@@ -68,4 +68,11 @@ public class Util
 	{
 		try { Thread.sleep(millis); } catch(Exception e) {}
 	}
+	
+	public static int silentParseInt(String toParse, int error)
+	{
+		try { return Integer.parseInt(toParse); } catch(Exception e) {}
+		
+		return error;
+	}
 }

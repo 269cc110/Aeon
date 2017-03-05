@@ -8,17 +8,19 @@ import de.btobastian.javacord.utils.*;
 
 public class Aeon
 {
-	public static final String VERSION = "0.3";
-	public static final String OVERLORD = "";
+	public static final String VERSION = "0.4";
 	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+	public static final Random RANDOM = new Random();
 	
 	public static ThreadPool pool = new ThreadPool();
 	public static Config config;
-	public static HashMap<String, String> deletedMessages = new HashMap<>();
+	public static Hashtable<String, String> deletedMessages = new Hashtable<>();
 	public static ServerCommands serverCommands;
 	
 	public static void main(String[] args) throws Exception
 	{
+		//System.setProperty("org.apache.logging.log4j.simplelog.StatusLogger.level", "TRACE");
+		
 		boolean debug = Boolean.parseBoolean(System.getProperty("debug"));
 		
 		System.out.println("Aeon " + VERSION);
@@ -29,12 +31,12 @@ public class Aeon
 		{
 			System.out.println("config.json not found, regenerating");
 			
-			writeJSON("config.json", config, config.debug);
+			writeJSON("config.json", new Config(), config.debug);
 			
-			return;
+			return; // no token
 		}
 		
-		try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("config.json"), "UTF-8")))
+		try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(configFile), "UTF-8")))
 		{
 			config = GSON.fromJson(reader, Config.class);
 		}
@@ -44,9 +46,9 @@ public class Aeon
 			
 			System.out.println("Failed to open config.json, regenerating");
 			
-			config = new Config();
+			writeJSON("config.json", new Config(), config.debug);
 			
-			writeJSON("config.json", config, config.debug);
+			return; // no token
 		}
 		
 		config.debug |= debug;
@@ -68,14 +70,55 @@ public class Aeon
 			writeJSON("commands.json", serverCommands, config.debug);
 		}
 		
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> writeJSON("config.json", config, config.debug)));
-		Runtime.getRuntime().addShutdownHook(new Thread(() -> writeJSON("commands.json", serverCommands, config.debug)));
+		Runtime.getRuntime().addShutdownHook(new Thread(() ->
+		{
+			synchronized(config)
+			{
+				writeJSON("config.json", config, config.debug);
+			}
+		}));
+		
+		Runtime.getRuntime().addShutdownHook(new Thread(() ->
+		{
+			synchronized(serverCommands)
+			{
+				writeJSON("commands.json", serverCommands, config.debug);
+			}
+		}));
+		
+		new Thread(() ->
+		{
+			while(config.autosave)
+			{
+				Util.sleep(config.autosaveInterval * 1000);
+				Aeon.save();
+			}
+		}).start();
 		
 		System.out.println("Connecting to Discord");
 		
-		DiscordAPI api = new ImplDiscordAPI(pool);
+		ImplDiscordAPI api = new ImplDiscordAPI(pool);
 		api.setToken(config.token, true);
 		api.connect(new BotImpl());
+	}
+	
+	public static void save()
+	{
+		pool.getExecutorService().submit(() ->
+		{
+			synchronized(config)
+			{
+				writeJSON("config.json", config, config.debug);
+			}
+		});
+		
+		pool.getExecutorService().submit(() ->
+		{
+			synchronized(serverCommands)
+			{
+				writeJSON("commands.json", serverCommands, config.debug);
+			}
+		});
 	}
 	
 	private static void writeJSON(String file, Object obj, boolean debug)
@@ -83,6 +126,7 @@ public class Aeon
 		try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(file), "UTF-8")))
 		{
 			GSON.toJson(obj, writer);
+			writer.newLine();
 		}
 		catch(Exception e)
 		{

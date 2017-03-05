@@ -1,5 +1,6 @@
 package net.cc110.aeon;
 
+import java.util.*;
 import de.btobastian.javacord.*;
 import net.cc110.aeon.commands.*;
 import de.btobastian.sdcf4j.handler.*;
@@ -28,7 +29,29 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 			
 			if(content.startsWith(Aeon.config.prefix + Aeon.config.prefix))
 			{
-				message.reply(Aeon.serverCommands.getReply(channel.getServer().getId(), Util.tokenise(content.substring(2)).get(0)));
+				User user = message.getAuthor();
+				Server server = channel.getServer();
+				
+				List<String> tokens = Util.tokenise(content.substring(2));
+				
+				String reply = Aeon.serverCommands.getReply(channel.getServer().getId(), tokens.get(0))
+						.replace("^", "^C")
+						.replace("\\\\", "^S")
+						.replace("\\%", "^P")
+						.replace("%caller.name%", message.getAuthor().getName())
+						.replace("%caller.nick%", message.getAuthor().getNickname(server))
+						.replace("%caller.id%", user.getId());
+				
+				for(int i = 1; i < tokens.size(); i++)
+				{
+					reply = reply.replace("%target" + i + "%", tokens.get(i));
+				}
+				
+				reply = reply.replace("^P", "%")
+						.replace("^S", "\\")
+						.replace("^C", "^");
+				
+				message.reply(reply);
 			}
 		});
 		
@@ -39,10 +62,11 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 		handler.setDefaultPrefix(Aeon.config.prefix);
 
 		handler.registerCommand(new CommandCat());
-		handler.registerCommand(new CommandDisconnect());
 		handler.registerCommand(new CommandUndelete());
 		handler.registerCommand(new CommandDog());
 		handler.registerCommand(new CommandCatFact());
 		handler.registerCommand(new CommandCommand());
+		handler.registerCommand(new CommandAeon());
+		handler.registerCommand(new CommandHeresy());
 	}
 }

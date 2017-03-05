@@ -1,17 +1,17 @@
 package net.cc110.aeon;
 
-import java.util.*;
+import java.util.concurrent.*;
 
 public class ServerCommands
 {
-	private HashMap<String, HashMap<String, String>> commands = new HashMap<>();
+	private ConcurrentHashMap<String, ConcurrentHashMap<String, String>> commands = new ConcurrentHashMap<>();
 	
 	public void set(String server, String command, String response)
 	{
-		HashMap<String, String> serverMap;
+		ConcurrentHashMap<String, String> serverMap;
 		
 		if(commands.containsKey(server)) serverMap = commands.get(server);
-		else commands.put(server, serverMap = new HashMap<String, String>());
+		else commands.put(server, serverMap = new ConcurrentHashMap<String, String>());
 		
 		serverMap.put(command, response);
 	}
@@ -20,7 +20,7 @@ public class ServerCommands
 	{
 		if(commands.containsKey(server))
 		{
-			HashMap<String, String> serverMap = commands.get(server);
+			ConcurrentHashMap<String, String> serverMap = commands.get(server);
 			
 			if(serverMap.containsKey(command))
 			{

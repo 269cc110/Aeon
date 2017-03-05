@@ -18,15 +18,23 @@ public class CommandCommand implements CommandExecutor
 			List<String> tokens = Util.tokenise(message.getContent());
 			int tokenCount = tokens.size();
 			
-			if(tokens.size() > 1)
+			if(tokens.size() > 2)
 			{
+				String command = tokens.get(2);
+				
 				switch(tokens.get(1))
 				{
 					case "set":
-						if(tokenCount > 3) Aeon.serverCommands.set(message.getChannelReceiver().getServer().getId(), tokens.get(2), tokens.get(3));
+						if(tokenCount > 3)
+						{
+							String reply = tokens.get(3);
+							Aeon.serverCommands.set(message.getChannelReceiver().getServer().getId(), command, reply);
+							message.reply("Set " + Aeon.config.prefix + Aeon.config.prefix + command + " -> \"" + reply + "\"");
+						}
 						break;
+						
 					case "delete":
-						if(tokenCount > 2) if(!Aeon.serverCommands.remove(message.getChannelReceiver().getServer().getId(), tokens.get(2))) return "Command not found: " + tokens.get(2);
+						if(!Aeon.serverCommands.remove(message.getChannelReceiver().getServer().getId(), command)) return "Command not found: " + command;
 						break;
 				}
 			}
