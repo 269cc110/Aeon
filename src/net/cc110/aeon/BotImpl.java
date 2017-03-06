@@ -38,13 +38,13 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 						.replace("^", "^C")
 						.replace("\\\\", "^S")
 						.replace("\\%", "^P")
-						.replace("%caller.name%", message.getAuthor().getName())
-						.replace("%caller.nick%", message.getAuthor().getNickname(server))
+						.replace("%caller.name%", user.getName())
+						.replace("%caller.nick%", user.hasNickname(server) ? user.getNickname(server) : user.getName())
 						.replace("%caller.id%", user.getId());
 				
 				for(int i = 1; i < tokens.size(); i++)
 				{
-					reply = reply.replace("%target" + i + "%", tokens.get(i));
+					reply = reply.replace("%target" + (i - 1) + "%", tokens.get(i));
 				}
 				
 				reply = reply.replace("^P", "%")
