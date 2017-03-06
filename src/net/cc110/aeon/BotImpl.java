@@ -22,25 +22,37 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 		
 		api.registerListener((MessageCreateListener)(DiscordAPI api_, Message message) ->
 		{
-			Channel channel = message.getChannelReceiver();
+			Channel channel = null;
+			Server server = null;
+
+			User user = message.getAuthor();
+			
+			boolean pm = message.isPrivateMessage();
+			
+			if(!pm)
+			{
+				channel = message.getChannelReceiver();
+				server = channel.getServer();
+			}
+			
 			String content = message.getContent();
 			
-			System.out.println((channel != null ? (channel.getServer().getName() + "#" + channel.getName()) : "PM") + "#" + message.getAuthor().getName() + ": " + message.getContent());
+			System.out.println((pm ? "PM" : server.getName()) + "#" + message.getAuthor().getName() + ": " + message.getContent());
 			
 			if(content.startsWith(Aeon.config.prefix + Aeon.config.prefix))
 			{
-				User user = message.getAuthor();
-				Server server = channel.getServer();
-				
 				List<String> tokens = Util.tokenise(content.substring(2));
 				
-				String reply = Aeon.serverCommands.getReply(channel.getServer().getId(), tokens.get(0))
+				String reply = Aeon.customCommands.getReply(pm, pm ? user.getId() : server.getId(), tokens.get(0))
 						.replace("^", "^C")
 						.replace("\\\\", "^S")
 						.replace("\\%", "^P")
 						.replace("%caller.name%", user.getName())
-						.replace("%caller.nick%", user.hasNickname(server) ? user.getNickname(server) : user.getName())
-						.replace("%caller.id%", user.getId());
+						.replace("%caller.nick%", pm ? user.getName() : (user.hasNickname(server) ? user.getNickname(server) : user.getName()))
+						.replace("%caller.id%", user.getId())
+						.replace("%caller.discriminator%", user.getDiscriminator())
+						.replace("%caller.game", user.getGame())
+						.replace("%caller%", user.getMentionTag());
 				
 				for(int i = 1; i < tokens.size(); i++)
 				{

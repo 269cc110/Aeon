@@ -15,7 +15,7 @@ public class Aeon
 	public static ThreadPool pool = new ThreadPool();
 	public static Config config;
 	public static Hashtable<String, String> deletedMessages = new Hashtable<>();
-	public static ServerCommands serverCommands;
+	public static CustomCommands customCommands;
 	
 	public static void main(String[] args) throws Exception
 	{
@@ -57,17 +57,17 @@ public class Aeon
 		
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("commands.json"), "UTF-8")))
 		{
-			serverCommands = GSON.fromJson(reader, ServerCommands.class);
+			customCommands = GSON.fromJson(reader, CustomCommands.class);
 		}
 		catch(FileNotFoundException | JsonParseException f)
 		{
 			if(debug) f.printStackTrace();
 			
-			serverCommands = new ServerCommands();
+			customCommands = new CustomCommands();
 			
 			System.out.println("Failed to open commands.json, regenerating");
 			
-			writeJSON("commands.json", serverCommands, config.debug);
+			writeJSON("commands.json", customCommands, config.debug);
 		}
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(() ->
@@ -80,9 +80,9 @@ public class Aeon
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(() ->
 		{
-			synchronized(serverCommands)
+			synchronized(customCommands)
 			{
-				writeJSON("commands.json", serverCommands, config.debug);
+				writeJSON("commands.json", customCommands, config.debug);
 			}
 		}));
 		
@@ -114,9 +114,9 @@ public class Aeon
 		
 		pool.getExecutorService().submit(() ->
 		{
-			synchronized(serverCommands)
+			synchronized(customCommands)
 			{
-				writeJSON("commands.json", serverCommands, config.debug);
+				writeJSON("commands.json", customCommands, config.debug);
 			}
 		});
 	}
