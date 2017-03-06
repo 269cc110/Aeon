@@ -44,7 +44,6 @@ public class Util
 					}
 				}
 				else if(c == '\\') escape = true;
-				else if(c == '#') break;
 				else builder.append(c);
 			}
 		}
