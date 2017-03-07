@@ -8,9 +8,12 @@ import de.btobastian.javacord.utils.*;
 
 public class Aeon
 {
-	public static final String VERSION = "0.4";
-	public static final Gson GSON = new GsonBuilder().setPrettyPrinting().serializeNulls().create();
+	public static final String VERSION = "0.5";
+	public static final Gson GSON = new GsonBuilder()
+			.setPrettyPrinting().serializeNulls().addSerializationExclusionStrategy(new GSONExclusionStrategy("gse")).create();
 	public static final Random RANDOM = new Random();
+	
+	public static final PrintStream STDERR = System.err;
 	
 	public static ThreadPool pool = new ThreadPool();
 	public static Config config;
@@ -19,8 +22,6 @@ public class Aeon
 	
 	public static void main(String[] args) throws Exception
 	{
-		//System.setProperty("org.apache.logging.log4j.simplelog.StatusLogger.level", "TRACE");
-		
 		boolean debug = Boolean.parseBoolean(System.getProperty("debug"));
 		
 		System.out.println("Aeon " + VERSION);
@@ -51,9 +52,18 @@ public class Aeon
 			return; // no token
 		}
 		
+		if(!config.debug)
+		{
+			File logFile = new File("logs/" + System.currentTimeMillis() + ".log");
+			logFile.getParentFile().mkdirs();
+			
+			final PrintStream logErr = new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)));
+			System.setErr(logErr);
+		}
+		
 		config.debug |= debug;
 		
-		if(debug) System.out.println("Debug mode on");
+		if(config.debug) System.out.println("Debug mode on");
 		
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("commands.json"), "UTF-8")))
 		{
@@ -91,9 +101,11 @@ public class Aeon
 			while(config.autosave)
 			{
 				Util.sleep(config.autosaveInterval * 1000);
-				Aeon.save();
+				save();
 			}
 		}).start();
+		
+		pool.getExecutorService().submit(() -> save());
 		
 		System.out.println("Connecting to Discord");
 		

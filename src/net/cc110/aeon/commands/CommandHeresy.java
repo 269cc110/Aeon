@@ -19,7 +19,9 @@ public class CommandHeresy implements CommandExecutor
 		"http://i2.kym-cdn.com/photos/images/facebook/000/706/085/0f0.jpg",
 		"https://cdn-webimages.wimages.net/05156e1fe1260d988173727ac6fb9664f3853c-wm.jpg",
 		"https://i.imgur.com/m59rdnz.jpg",
-		"http://static2.fjcdn.com/thumbnails/comments/5767182+_1b7993e025f6d0c59874a9da6134fdcc.png"
+		"http://static2.fjcdn.com/thumbnails/comments/5767182+_1b7993e025f6d0c59874a9da6134fdcc.png",
+		"https://i.imgflip.com/1h4f0l.jpg",
+		"http://i1.kym-cdn.com/photos/images/original/000/584/521/0ae.jpg"
 	};
 	
 	@Command(aliases = {"heresy"}, description = "Heresy")

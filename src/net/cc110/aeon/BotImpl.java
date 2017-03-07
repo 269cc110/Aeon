@@ -20,12 +20,15 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 	{
 		System.out.println("Connected");
 		
+		Aeon.config.init(api);
+		
 		api.registerListener((MessageCreateListener)(DiscordAPI api_, Message message) ->
 		{
 			Channel channel = null;
 			Server server = null;
 
 			User user = message.getAuthor();
+			String game = user.getGame();
 			
 			boolean pm = message.isPrivateMessage();
 			
@@ -51,7 +54,7 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 						.replace("%caller.nick%", pm ? user.getName() : (user.hasNickname(server) ? user.getNickname(server) : user.getName()))
 						.replace("%caller.id%", user.getId())
 						.replace("%caller.discriminator%", user.getDiscriminator())
-						.replace("%caller.game", user.getGame())
+						.replace("%caller.game%", game == null ? "null" : game)
 						.replace("%caller%", user.getMentionTag());
 				
 				for(int i = 1; i < tokens.size(); i++)
