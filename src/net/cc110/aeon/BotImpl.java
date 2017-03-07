@@ -38,35 +38,41 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 				server = channel.getServer();
 			}
 			
+			String id = pm ? user.getId() : server.getId();
 			String content = message.getContent();
 			
-			System.out.println((pm ? "PM" : server.getName()) + "#" + message.getAuthor().getName() + ": " + message.getContent());
+			System.out.println((pm ? "PM" : server.getName()) + "#" + user.getName() + ": " + message.getContent());
 			
-			if(content.startsWith(Aeon.config.prefix + Aeon.config.prefix))
+			if(content.length() > 2 && content.startsWith(Aeon.config.prefix + Aeon.config.prefix))
 			{
 				List<String> tokens = Util.tokenise(content.substring(2));
 				
-				String reply = Aeon.customCommands.getReply(pm, pm ? user.getId() : server.getId(), tokens.get(0))
-						.replace("^", "^C")
-						.replace("\\\\", "^S")
-						.replace("\\%", "^P")
-						.replace("%caller.name%", user.getName())
-						.replace("%caller.nick%", pm ? user.getName() : (user.hasNickname(server) ? user.getNickname(server) : user.getName()))
-						.replace("%caller.id%", user.getId())
-						.replace("%caller.discriminator%", user.getDiscriminator())
-						.replace("%caller.game%", game == null ? "null" : game)
-						.replace("%caller%", user.getMentionTag());
+				String command = tokens.get(0);
 				
-				for(int i = 1; i < tokens.size(); i++)
+				if(Aeon.customCommands.commandExists(pm, id, command))
 				{
-					reply = reply.replace("%target" + (i - 1) + "%", tokens.get(i));
+					String reply = Aeon.customCommands.getReply(pm, id, command)
+							.replace("^", "^C")
+							.replace("\\\\", "^S")
+							.replace("\\%", "^P")
+							.replace("%caller.name%", user.getName())
+							.replace("%caller.nick%", pm ? user.getName() : (user.hasNickname(server) ? user.getNickname(server) : user.getName()))
+							.replace("%caller.id%", user.getId())
+							.replace("%caller.discriminator%", user.getDiscriminator())
+							.replace("%caller.game%", game == null ? "null" : game)
+							.replace("%caller%", user.getMentionTag());
+					
+					for(int i = 1; i < tokens.size(); i++)
+					{
+						reply = reply.replace("%target" + (i - 1) + "%", tokens.get(i));
+					}
+					
+					reply = reply.replace("^P", "%")
+							.replace("^S", "\\")
+							.replace("^C", "^");
+					
+					message.reply(reply);
 				}
-				
-				reply = reply.replace("^P", "%")
-						.replace("^S", "\\")
-						.replace("^C", "^");
-				
-				message.reply(reply);
 			}
 		});
 		
