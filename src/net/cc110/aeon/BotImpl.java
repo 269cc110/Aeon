@@ -14,6 +14,10 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 	public void onFailure(Throwable t)
 	{
 		t.printStackTrace();
+		
+		if(!Aeon.config.debug) t.printStackTrace(Aeon.STDERR);
+		
+		System.exit(1);
 	}
 	
 	public void onSuccess(DiscordAPI api)
