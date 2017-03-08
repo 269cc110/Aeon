@@ -20,7 +20,9 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 	{
 		System.out.println("Connected");
 		
-		Aeon.config.init(api);
+		JavacordHandler handler = new JavacordHandler(api);
+		
+		Aeon.config.init(api, handler);
 		
 		api.registerListener((MessageCreateListener)(DiscordAPI api_, Message message) ->
 		{
@@ -43,7 +45,7 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 			
 			System.out.println((pm ? "PM" : server.getName()) + "#" + user.getName() + ": " + message.getContent());
 			
-			if(content.length() > 2 && content.startsWith(Aeon.config.prefix + Aeon.config.prefix))
+			if(content.length() > 2 && content.startsWith(Aeon.config.getPrefix() + Aeon.config.getPrefix()))
 			{
 				List<String> tokens = Util.tokenise(content.substring(2));
 				
@@ -77,10 +79,6 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 		});
 		
 		api.registerListener((MessageDeleteListener)(DiscordAPI api_, Message message) -> Aeon.deletedMessages.put(message.getAuthor().getId(), message.getContent()));
-		
-		JavacordHandler handler = new JavacordHandler(api);
-		
-		handler.setDefaultPrefix(Aeon.config.prefix);
 
 		handler.registerCommand(new CommandCat());
 		handler.registerCommand(new CommandUndelete());
@@ -89,5 +87,7 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 		handler.registerCommand(new CommandCommand());
 		handler.registerCommand(new CommandAeon());
 		handler.registerCommand(new CommandHeresy());
+		
+		System.out.println("Ready");
 	}
 }

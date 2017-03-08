@@ -42,7 +42,7 @@ public class CommandCommand implements CommandExecutor
 						{
 							String reply = tokens.get(3);
 							Aeon.customCommands.set(pm, pm ? user.getId() : server.getId(), command, reply);
-							message.reply("Set " + Aeon.config.prefix + Aeon.config.prefix + command + " -> \"" + reply + "\"");
+							message.reply("Set " + Aeon.config.getPrefix() + Aeon.config.getPrefix() + command + " -> \"" + reply + "\"");
 						}
 						break;
 						
