@@ -24,7 +24,7 @@ public class CommandHeresy implements CommandExecutor
 		"http://i1.kym-cdn.com/photos/images/original/000/584/521/0ae.jpg"
 	};
 	
-	@Command(aliases = {"heresy"}, description = "Heresy")
+	@Command(aliases = {"heresy"}, description = "Heresy", async = true)
 	public String onCommand(DiscordAPI api, Message message)
 	{
 		return images[Aeon.RANDOM.nextInt(images.length)];

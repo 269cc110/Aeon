@@ -22,7 +22,7 @@ public class Aeon
 	
 	public static void main(String[] args) throws Exception
 	{
-		boolean debug = Boolean.parseBoolean(System.getProperty("debug"));
+		boolean debug = Boolean.parseBoolean(System.getProperty("aeon.debug"));
 		
 		System.out.println("Aeon " + VERSION);
 		
@@ -105,7 +105,7 @@ public class Aeon
 			}
 		}).start();
 		
-		pool.getExecutorService().submit(() -> save());
+		save();
 		
 		System.out.println("Connecting to Discord");
 		
@@ -116,11 +116,16 @@ public class Aeon
 	
 	public static void save()
 	{
+		save(config.debug);
+	}
+	
+	public static void save(final boolean debug) // avoid blocking command save thread with config save
+	{
 		pool.getExecutorService().submit(() ->
 		{
 			synchronized(config)
 			{
-				writeJSON("config.json", config, config.debug);
+				writeJSON("config.json", config, debug);
 			}
 		});
 		
@@ -128,7 +133,7 @@ public class Aeon
 		{
 			synchronized(customCommands)
 			{
-				writeJSON("commands.json", customCommands, config.debug);
+				writeJSON("commands.json", customCommands, debug);
 			}
 		});
 	}

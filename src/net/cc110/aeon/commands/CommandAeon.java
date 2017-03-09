@@ -13,12 +13,12 @@ public class CommandAeon implements CommandExecutor
 	{
 		if(message.getAuthor().getId().equals(Aeon.config.overlord))
 		{
-			List<String> tokens = Util.tokenise(message.getContent().toLowerCase());
+			List<String> tokens = Util.tokenise(message.getContent());
 			int tokenCount = tokens.size();
 			
 			if(tokenCount > 1)
 			{
-				switch(tokens.get(1))
+				switch(tokens.get(1).toLowerCase())
 				{
 					case "disconnect":
 						message.reply("Disconnecting :frowning:");

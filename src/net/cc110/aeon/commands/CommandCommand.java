@@ -35,7 +35,7 @@ public class CommandCommand implements CommandExecutor
 			{
 				String command = tokens.get(2);
 				
-				switch(tokens.get(1))
+				switch(tokens.get(1).toLowerCase())
 				{
 					case "set":
 						if(tokenCount > 3)
