@@ -13,7 +13,7 @@ public class GSONExclusionStrategy implements ExclusionStrategy
 	
 	public boolean shouldSkipClass(Class<?> clazz)
 	{
-		return clazz.getName().startsWith(exclusionPrefix);
+		return clazz.getSimpleName().startsWith(exclusionPrefix);
 	}
 	
 	public boolean shouldSkipField(FieldAttributes f)

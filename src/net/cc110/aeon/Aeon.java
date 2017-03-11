@@ -9,7 +9,7 @@ import de.btobastian.javacord.utils.*;
 
 public class Aeon
 {
-	public static final String VERSION = "0.5";
+	public static final String VERSION = "0.6";
 	public static final Gson GSON = new GsonBuilder()
 			.setPrettyPrinting().serializeNulls().addSerializationExclusionStrategy(new GSONExclusionStrategy("gse")).create();
 	public static final Random RANDOM = new Random();
