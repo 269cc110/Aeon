@@ -1,4 +1,4 @@
-package net.cc110.aeon;
+package net.cc110.aeon.util;
 
 import java.util.*;
 import de.btobastian.javacord.entities.*;

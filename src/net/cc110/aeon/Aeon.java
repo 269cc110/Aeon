@@ -3,6 +3,7 @@ package net.cc110.aeon;
 import java.io.*;
 import java.util.*;
 import com.google.gson.*;
+import net.cc110.aeon.util.*;
 import de.btobastian.javacord.*;
 import de.btobastian.javacord.utils.*;
 
@@ -26,13 +27,21 @@ public class Aeon
 		
 		System.out.println("Aeon " + VERSION);
 		
+		File logFile = new File("logs/" + System.currentTimeMillis() + ".log");
+		logFile.getParentFile().mkdirs();
+		
+		TeeOutputStream logOut = new TeeOutputStream(new BufferedOutputStream(new FileOutputStream(logFile)), STDERR);
+		System.setErr(new PrintStream(logOut, true));
+		
 		File configFile = new File("config.json");
 		
 		if(!configFile.exists())
 		{
-			System.out.println("config.json not found, regenerating");
+			System.err.println("config.json not found, regenerating");
 			
 			writeJSON("config.json", new Config(), config.debug);
+			
+			logOut.close();
 			
 			return; // no token
 		}
@@ -44,26 +53,19 @@ public class Aeon
 		catch(FileNotFoundException | JsonParseException f)
 		{
 			if(debug) f.printStackTrace();
-			
-			System.out.println("Failed to open config.json, regenerating");
+
+			System.err.println("Failed to open config.json, regenerating");
 			
 			writeJSON("config.json", new Config(), config.debug);
+			
+			logOut.close();
 			
 			return; // no token
 		}
 		
-		if(!config.debug)
-		{
-			File logFile = new File("logs/" + System.currentTimeMillis() + ".log");
-			logFile.getParentFile().mkdirs();
-			
-			final PrintStream logErr = new PrintStream(new BufferedOutputStream(new FileOutputStream(logFile)));
-			System.setErr(logErr);
-		}
-		
 		config.debug |= debug;
 		
-		if(config.debug) System.out.println("Debug mode on");
+		if(!config.debug) System.setErr(new PrintStream(logOut, true));
 		
 		try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("commands.json"), "UTF-8")))
 		{
@@ -75,7 +77,7 @@ public class Aeon
 			
 			customCommands = new CustomCommands();
 			
-			System.out.println("Failed to open commands.json, regenerating");
+			System.err.println("Failed to open commands.json, regenerating");
 			
 			writeJSON("commands.json", customCommands, config.debug);
 		}
@@ -101,7 +103,7 @@ public class Aeon
 			while(config.autosave)
 			{
 				Util.sleep(config.autosaveInterval * 1000);
-				save();
+				if(config.autosave) save();
 			}
 		}).start();
 		

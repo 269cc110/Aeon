@@ -1,6 +1,7 @@
 package net.cc110.aeon;
 
 import java.util.*;
+import net.cc110.aeon.util.*;
 import de.btobastian.javacord.*;
 import net.cc110.aeon.commands.*;
 import de.btobastian.sdcf4j.handler.*;
@@ -47,7 +48,7 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 			String id = pm ? user.getId() : server.getId();
 			String content = message.getContent();
 			
-			System.out.println((pm ? "PM" : server.getName()) + "#" + user.getName() + ": " + message.getContent());
+			System.out.println((pm ? "PM" : server.getName() + "#" + channel.getName()) + "#" + user.getName() + ": " + message.getContent());
 			
 			if(content.length() > 2 && content.startsWith(Aeon.config.getPrefix() + Aeon.config.getPrefix()))
 			{

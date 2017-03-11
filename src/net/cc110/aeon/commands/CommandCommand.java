@@ -2,6 +2,7 @@ package net.cc110.aeon.commands;
 
 import java.util.*;
 import net.cc110.aeon.*;
+import net.cc110.aeon.util.*;
 import de.btobastian.sdcf4j.*;
 import de.btobastian.javacord.*;
 import de.btobastian.javacord.entities.*;
@@ -47,8 +48,8 @@ public class CommandCommand implements CommandExecutor
 						break;
 						
 					case "delete":
-						if(!Aeon.customCommands.remove(pm, pm ? user.getId() : server.getId(), command)) return "Command not found: " + command;
-						break;
+						return (Aeon.customCommands.remove(pm, pm ? user.getId() : server.getId(), command)
+								? "Deleted " : "Not found: ") + command;
 				}
 			}
 		}

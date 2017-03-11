@@ -1,4 +1,4 @@
-package net.cc110.aeon;
+package net.cc110.aeon.util;
 
 import com.google.gson.*;
 
