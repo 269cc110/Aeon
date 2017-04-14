@@ -4,9 +4,9 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 import net.cc110.aeon.*;
+import net.cc110.aeon.util.*;
 import de.btobastian.javacord.*;
 import net.cc110.aeon.container.*;
-import net.cc110.aeon.util.Util;
 import de.btobastian.javacord.entities.message.*;
 
 public class CommandCat implements AsyncCommandExecutor

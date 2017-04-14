@@ -1,7 +1,6 @@
 package net.cc110.aeon.commands;
 
 import java.util.*;
-
 import net.cc110.aeon.*;
 import net.cc110.aeon.util.*;
 import de.btobastian.javacord.*;

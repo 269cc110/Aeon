@@ -6,7 +6,7 @@ import net.cc110.aeon.util.*;
 import de.btobastian.javacord.*;
 import de.btobastian.javacord.entities.*;
 import de.btobastian.javacord.entities.message.*;
-import de.btobastian.javacord.entities.permissions.PermissionType;
+import de.btobastian.javacord.entities.permissions.*;
 
 public class CommandUndelete implements CommandExecutor
 {

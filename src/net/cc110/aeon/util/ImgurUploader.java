@@ -6,9 +6,8 @@ import javax.imageio.*;
 import javax.net.ssl.*;
 import java.awt.image.*;
 import net.cc110.aeon.*;
-import net.cc110.aeon.container.ImgurBasic;
-
 import java.nio.charset.*;
+import net.cc110.aeon.container.*;
 import org.apache.commons.codec.binary.*;
 
 public class ImgurUploader implements ImageUploader
