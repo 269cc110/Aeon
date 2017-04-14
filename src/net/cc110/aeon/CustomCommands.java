@@ -1,11 +1,12 @@
 package net.cc110.aeon;
 
+import java.util.*;
 import java.util.concurrent.*;
 
 public class CustomCommands
 {
 	@SuppressWarnings("unchecked")
-	public ConcurrentHashMap<String, ConcurrentHashMap<String, String>> commands[] =
+	private ConcurrentHashMap<String, ConcurrentHashMap<String, String>> commands[] =
 	(ConcurrentHashMap<String, ConcurrentHashMap<String, String>>[])new ConcurrentHashMap[]
 	{
 		new ConcurrentHashMap<String, ConcurrentHashMap<String, String>>(), // server
@@ -18,8 +19,11 @@ public class CustomCommands
 		
 		ConcurrentHashMap<String, String> serverMap;
 		
-		if(commands[i].containsKey(id)) serverMap = commands[i].get(id);
-		else commands[i].put(id, serverMap = new ConcurrentHashMap<String, String>());
+		synchronized(commands[i])
+		{
+			if(commands[i].containsKey(id)) serverMap = commands[i].get(id);
+			else commands[i].put(id, serverMap = new ConcurrentHashMap<String, String>());
+		}
 		
 		serverMap.put(command, response);
 	}
@@ -28,14 +32,17 @@ public class CustomCommands
 	{
 		int i = pm ? 1 : 0;
 		
-		if(commands[i].containsKey(id))
+		synchronized(commands[i])
 		{
-			ConcurrentHashMap<String, String> serverMap = commands[i].get(id);
-			
-			if(serverMap.containsKey(command))
+			if(commands[i].containsKey(id))
 			{
-				serverMap.remove(command);
-				return true;
+				ConcurrentHashMap<String, String> serverMap = commands[i].get(id);
+				
+				if(serverMap.containsKey(command))
+				{
+					serverMap.remove(command);
+					return true;
+				}
 			}
 		}
 		
@@ -46,13 +53,31 @@ public class CustomCommands
 	{
 		int i = pm ? 1 : 0;
 		
-		return commands[i].containsKey(id) ? commands[i].get(id).get(command) : null;
+		synchronized(commands[i])
+		{
+			return commands[i].containsKey(id) ? commands[i].get(id).get(command) : null;
+		}
 	}
 	
 	public boolean commandExists(boolean pm, String id, String command)
 	{
 		int i = pm ? 1 : 0;
 		
-		return commands[i].containsKey(id) && commands[i].get(id).containsKey(command);
+		synchronized(commands[i])
+		{
+			return commands[i].containsKey(id) && commands[i].get(id).containsKey(command);
+		}
+	}
+	
+	public Set<String> getCommands(boolean pm, String id)
+	{
+		int i = pm ? 1 : 0;
+		
+		synchronized(commands[i])
+		{
+			if(commands[i].containsKey(id)) return Collections.unmodifiableSet(commands[i].get(id).keySet());
+		}
+		
+		return null;
 	}
 }

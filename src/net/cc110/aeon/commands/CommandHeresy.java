@@ -1,11 +1,12 @@
 package net.cc110.aeon.commands;
 
+import java.util.*;
 import net.cc110.aeon.*;
-import de.btobastian.sdcf4j.*;
+import net.cc110.aeon.util.Util;
 import de.btobastian.javacord.*;
 import de.btobastian.javacord.entities.message.*;
 
-public class CommandHeresy implements CommandExecutor
+public class CommandHeresy implements AsyncCommandExecutor
 {
 	private static final String[] images = // more to come
 	{
@@ -24,9 +25,21 @@ public class CommandHeresy implements CommandExecutor
 		"http://i1.kym-cdn.com/photos/images/original/000/584/521/0ae.jpg"
 	};
 	
-	@Command(aliases = {"heresy"}, description = "Heresy", async = true)
-	public String onCommand(DiscordAPI api, Message message)
+	public String execute(DiscordAPI api, Message message, List<String> tokens)
 	{
-		return images[Aeon.RANDOM.nextInt(images.length)];
+		String image = images[Aeon.RANDOM.nextInt(images.length)];
+		
+		if(Aeon.config.enableEmbeds)
+		{
+			message.reply(null, Util.getEmbed(image, null, message.getAuthor()));
+			return null;
+		}
+		
+		return image;
+	}
+	
+	public List<String> getAliases()
+	{
+		return Collections.unmodifiableList(Arrays.asList("heresy"));
 	}
 }

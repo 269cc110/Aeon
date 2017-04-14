@@ -2,13 +2,13 @@ package net.cc110.aeon.commands;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import net.cc110.aeon.*;
-import de.btobastian.sdcf4j.*;
 import de.btobastian.javacord.*;
 import net.cc110.aeon.container.*;
 import de.btobastian.javacord.entities.message.*;
 
-public class CommandCatFact implements CommandExecutor
+public class CommandCatFact implements AsyncCommandExecutor
 {
 	private static final URL MEOW;
 	
@@ -22,6 +22,7 @@ public class CommandCatFact implements CommandExecutor
 		}
 		catch(Exception e)
 		{
+			Aeon.lastError = e;
 			meow = null;
 			e.printStackTrace();
 		}
@@ -29,8 +30,7 @@ public class CommandCatFact implements CommandExecutor
 		MEOW = meow;
 	}
 	
-	@Command(aliases = {"catfact"}, description = "Random cat facts", async = true)
-	public String onCommand(DiscordAPI api, Message message)
+	public String execute(DiscordAPI api, Message message, List<String> tokens)
 	{
 		try
 		{
@@ -47,5 +47,10 @@ public class CommandCatFact implements CommandExecutor
 			e.printStackTrace();
 			return "Error";
 		}
+	}
+	
+	public List<String> getAliases()
+	{
+		return Collections.unmodifiableList(Arrays.asList("catfact"));
 	}
 }

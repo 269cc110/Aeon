@@ -3,13 +3,16 @@ package net.cc110.aeon;
 import java.io.*;
 import java.util.*;
 import com.google.gson.*;
+import java.lang.reflect.*;
 import net.cc110.aeon.util.*;
+import java.util.concurrent.*;
 import de.btobastian.javacord.*;
+import com.google.gson.reflect.*;
 import de.btobastian.javacord.utils.*;
 
 public class Aeon
 {
-	public static final String VERSION = "0.6";
+	public static final String VERSION = "0.9";
 	public static final Gson GSON = new GsonBuilder()
 			.setPrettyPrinting().serializeNulls().addSerializationExclusionStrategy(new GSONExclusionStrategy("gse")).create();
 	public static final Random RANDOM = new Random();
@@ -18,8 +21,13 @@ public class Aeon
 	
 	public static ThreadPool pool = new ThreadPool();
 	public static Config config;
-	public static Hashtable<String, String> deletedMessages = new Hashtable<>();
+	public static DeletedMessages deletedMessages = new DeletedMessages();
+	public static CommandHandler commandHandler = new CommandHandler();
 	public static CustomCommands customCommands;
+	public static ImageUploadHandler uploadHandler = new ImageUploadHandler();
+	public static ConcurrentHashMap<String, String> colourCache = new ConcurrentHashMap<>();
+	
+	public static Throwable lastError = null;
 	
 	public static void main(String[] args) throws Exception
 	{
@@ -32,6 +40,12 @@ public class Aeon
 		
 		TeeOutputStream logOut = new TeeOutputStream(new BufferedOutputStream(new FileOutputStream(logFile)), STDERR);
 		System.setErr(new PrintStream(logOut, true));
+		
+		Thread.setDefaultUncaughtExceptionHandler((t, e) ->
+		{
+			lastError = e;
+			e.printStackTrace();
+		});
 		
 		File configFile = new File("config.json");
 		
@@ -56,6 +70,8 @@ public class Aeon
 
 			System.err.println("Failed to open config.json, regenerating");
 			
+			configFile.renameTo(new File(configFile.getCanonicalPath() + "_" + System.currentTimeMillis()));
+			
 			writeJSON("config.json", new Config(), config.debug);
 			
 			logOut.close();
@@ -67,7 +83,9 @@ public class Aeon
 		
 		if(!config.debug) System.setErr(new PrintStream(logOut, true));
 		
-		try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream("commands.json"), "UTF-8")))
+		File commandFile = new File("commands.json");
+		
+		try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(commandFile), "UTF-8")))
 		{
 			customCommands = GSON.fromJson(reader, CustomCommands.class);
 		}
@@ -79,7 +97,32 @@ public class Aeon
 			
 			System.err.println("Failed to open commands.json, regenerating");
 			
+			commandFile.renameTo(new File(commandFile.getCanonicalPath() + "_" + System.currentTimeMillis()));
+			
 			writeJSON("commands.json", customCommands, config.debug);
+			
+			lastError = f;
+		}
+		
+		File cacheFile = new File("colour_cache.json");
+		
+		try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(cacheFile), "UTF-8")))
+		{
+			colourCache = readJSONConcurrentHashMap(reader, String.class, String.class);
+		}
+		catch(FileNotFoundException | JsonParseException f)
+		{
+			if(debug) f.printStackTrace();
+			
+			colourCache = new ConcurrentHashMap<>();
+			
+			System.err.println("Failed to open colour_cache.json, regenerating");
+			
+			cacheFile.renameTo(new File(cacheFile.getCanonicalPath() + "_" + System.currentTimeMillis()));
+			
+			writeJSON("colour_cache.json", colourCache, config.debug);
+			
+			lastError = f;
 		}
 		
 		Runtime.getRuntime().addShutdownHook(new Thread(() ->
@@ -98,6 +141,14 @@ public class Aeon
 			}
 		}));
 		
+		Runtime.getRuntime().addShutdownHook(new Thread(() ->
+		{
+			synchronized(colourCache)
+			{
+				writeJSON("colour_cache.json", colourCache, config.debug);
+			}
+		}));
+		
 		new Thread(() ->
 		{
 			while(config.autosave)
@@ -109,10 +160,14 @@ public class Aeon
 		
 		save();
 		
+		commandHandler = new CommandHandler();
+		deletedMessages = new DeletedMessages();
+		
 		System.out.println("Connecting to Discord");
 		
 		ImplDiscordAPI api = new ImplDiscordAPI(pool);
 		api.setToken(config.token, true);
+		api.setWaitForServersOnStartup(false); // workaround for Javacord #42
 		api.connect(new BotImpl());
 	}
 	
@@ -138,6 +193,14 @@ public class Aeon
 				writeJSON("commands.json", customCommands, debug);
 			}
 		});
+		
+		pool.getExecutorService().submit(() ->
+		{
+			synchronized(colourCache)
+			{
+				writeJSON("colour_cache.json", colourCache, debug);
+			}
+		});
 	}
 	
 	private static void writeJSON(String file, Object obj, boolean debug)
@@ -149,9 +212,18 @@ public class Aeon
 		}
 		catch(Exception e)
 		{
-			if(debug) e.printStackTrace();
+			lastError = e;
 			
-			System.err.println("Failed to write to " + file);
+			e.printStackTrace();
+			
+			if(!debug) STDERR.println("Failed to write to " + file);
 		}
+	}
+	
+	private static <K, V> ConcurrentHashMap<K, V> readJSONConcurrentHashMap(Reader reader, Class<K> k, Class<V> v) throws Exception
+	{
+		Type tableType = new TypeToken<ConcurrentHashMap<K, V>>(){}.getType();
+		
+		return GSON.fromJson(reader, tableType);
 	}
 }

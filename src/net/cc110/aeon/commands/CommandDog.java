@@ -2,11 +2,13 @@ package net.cc110.aeon.commands;
 
 import java.io.*;
 import java.net.*;
-import de.btobastian.sdcf4j.*;
+import java.util.*;
+import net.cc110.aeon.*;
+import net.cc110.aeon.util.*;
 import de.btobastian.javacord.*;
 import de.btobastian.javacord.entities.message.*;
 
-public class CommandDog implements CommandExecutor
+public class CommandDog implements AsyncCommandExecutor
 {
 	private static final URL WOOF;
 	
@@ -16,10 +18,11 @@ public class CommandDog implements CommandExecutor
 		
 		try
 		{
-			woof = new URL("http://random.dog/woof");
+			woof = new URL("https://random.dog/woof");
 		}
 		catch(Exception e)
 		{
+			Aeon.lastError = e;
 			woof = null;
 			e.printStackTrace();
 		}
@@ -27,8 +30,7 @@ public class CommandDog implements CommandExecutor
 		WOOF = woof;
 	}
 	
-	@Command(aliases = {"dog"}, description = "Random dog pictures", async = true)
-	public String onCommand(DiscordAPI api, Message message)
+	public String execute(DiscordAPI api, Message message, List<String> tokens)
 	{
 		try
 		{
@@ -40,12 +42,25 @@ public class CommandDog implements CommandExecutor
 			
 			reader.close();
 			
-			return "http://random.dog/" + result;
+			if(Aeon.config.enableEmbeds)
+			{
+				message.reply(null, Util.getEmbed("https://random.dog/" + result, null, message.getAuthor()));
+				return null;
+			}
+			
+			return "https://random.dog/" + result;
 		}
 		catch(Exception e)
 		{
+			Aeon.lastError = e;
 			e.printStackTrace();
-			return "Error";
+			
+			return "Unable to find valid certification path to requested target";
 		}
+	}
+	
+	public List<String> getAliases()
+	{
+		return Collections.unmodifiableList(Arrays.asList("dog", "pupper"));
 	}
 }
