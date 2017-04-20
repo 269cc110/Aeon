@@ -1,5 +1,6 @@
 package net.cc110.aeon;
 
+import java.util.stream.*;
 import net.cc110.aeon.util.*;
 import de.btobastian.javacord.*;
 
@@ -25,7 +26,7 @@ public class Config
 		{
 			System.err.println("Invalid image uploader \"" + imageUploader + "\"");
 			System.err.println("Valid uploaders: "
-					+ Util.concatenate(Util.getSortedList(Aeon.uploadHandler.getUploaders()), ", "));
+					+ Util.concatenate(Aeon.uploadHandler.getUploaders().stream().sorted().collect(Collectors.toList())));
 		}
 		
 		gse_initialised = true;

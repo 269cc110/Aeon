@@ -2,11 +2,11 @@ package net.cc110.aeon.commands;
 
 import java.util.*;
 import net.cc110.aeon.*;
+import java.util.stream.*;
 import net.cc110.aeon.util.*;
 import de.btobastian.javacord.*;
 import de.btobastian.javacord.entities.*;
 import de.btobastian.javacord.entities.message.*;
-import de.btobastian.javacord.entities.permissions.*;
 
 public class CommandRoles implements CommandExecutor
 {
@@ -22,24 +22,11 @@ public class CommandRoles implements CommandExecutor
 				
 				if(user != null)
 				{
-					Collection<Role> roles = user.getRoles(message.getChannelReceiver().getServer());
+					List<String> roles = user.getRoles(message.getChannelReceiver().getServer()).stream()
+							.map(t -> "`" + t.getName() + "`").sorted().collect(Collectors.toList());
 					
-					if(!roles.isEmpty())
-					{
-						StringBuilder builder = new StringBuilder();
-						
-						boolean first = true;
-						
-						for(Role role : roles)
-						{
-							if(!first) builder.append(", ");
-							builder.append("`" + role.getName() + "`");
-							first = false;
-						}
-						
-						return user.getMentionTag() + "'s roles: " + builder.toString();
-					}
-					else return "User " + user.getMentionTag() + " has no roles";
+					return roles.isEmpty() ? "User " + user.getMentionTag() + " has no roles"
+							: user.getMentionTag() + "'s roles: " + Util.concatenate(roles);
 				}
 				else return "Error";
 			}
@@ -51,5 +38,10 @@ public class CommandRoles implements CommandExecutor
 	public List<String> getAliases()
 	{
 		return Collections.unmodifiableList(Arrays.asList("roles"));
+	}
+	
+	public String getDescription()
+	{
+		return "Returns a user's roles";
 	}
 }

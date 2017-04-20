@@ -53,4 +53,9 @@ public class CommandCatFact implements AsyncCommandExecutor
 	{
 		return Collections.unmodifiableList(Arrays.asList("catfact"));
 	}
+	
+	public String getDescription()
+	{
+		return "Returns a random cat fact";
+	}
 }

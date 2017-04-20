@@ -61,4 +61,9 @@ public class CommandCat implements AsyncCommandExecutor
 	{
 		return Collections.unmodifiableList(Arrays.asList("cat", "pussy"));
 	}
+	
+	public String getDescription()
+	{
+		return "Returns a random cat picture from random.cat";
+	}
 }

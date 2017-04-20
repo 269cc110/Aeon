@@ -42,4 +42,9 @@ public class CommandHeresy implements AsyncCommandExecutor
 	{
 		return Collections.unmodifiableList(Arrays.asList("heresy"));
 	}
+	
+	public String getDescription()
+	{
+		return "HERESY";
+	}
 }

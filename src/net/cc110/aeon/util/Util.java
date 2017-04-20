@@ -179,14 +179,6 @@ public class Util
 		return result;
 	}
 	
-	public static List<String> getSortedList(Set<String> set)
-	{
-		ArrayList<String> result = new ArrayList<>(set);
-		result.sort(null);
-		
-		return result;
-	}
-	
 	public static String concatenate(List<String> in, String separator)
 	{
 		StringBuilder result = new StringBuilder();
@@ -202,5 +194,10 @@ public class Util
 		}
 		
 		return result.toString();
+	}
+	
+	public static String concatenate(List<String> in)
+	{
+		return concatenate(in, ", ");
 	}
 }

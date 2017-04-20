@@ -63,4 +63,9 @@ public class CommandDog implements AsyncCommandExecutor
 	{
 		return Collections.unmodifiableList(Arrays.asList("dog", "pupper"));
 	}
+	
+	public String getDescription()
+	{
+		return "Returns a random dog picture from random.dog";
+	}
 }

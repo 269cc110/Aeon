@@ -9,4 +9,5 @@ public interface CommandExecutor
 	default void onRegistered(CommandHandler handler) {}
 	String execute(DiscordAPI api, Message message, List<String> tokens);
 	List<String> getAliases();
+	String getDescription();
 }

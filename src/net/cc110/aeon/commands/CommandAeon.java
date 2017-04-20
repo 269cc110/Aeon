@@ -1,6 +1,8 @@
 package net.cc110.aeon.commands;
 
 import java.util.*;
+import java.util.stream.Collectors;
+
 import net.cc110.aeon.*;
 import net.cc110.aeon.util.*;
 import de.btobastian.javacord.*;
@@ -186,6 +188,31 @@ public class CommandAeon implements CommandExecutor
 						}
 					}
 					break;
+					
+				case "commands":
+				case "help":
+					StringBuilder builder = new StringBuilder();
+					String prefix = Aeon.config.prefix;
+					
+					Aeon.commandHandler.getCommands().stream().sorted().forEach(t ->
+					{
+						builder.append("\n" + prefix + t);
+						
+						List<String> aliases = Aeon.commandHandler.getAliasesFor(t).stream()
+								.sorted().map(u -> prefix + u).collect(Collectors.toList());
+						
+						if(!aliases.isEmpty()) builder.append(" [" + Util.concatenate(aliases) + "]");
+						
+						builder.append("\n");
+						
+						String description = Aeon.commandHandler.getDescription(t);
+						if(description != null) builder.append("\t" + description + "\n");
+					});
+					
+					message.reply(builder.length() == 0 ? "No commands registered. This is a bug!"
+							: Util.monoQuote(builder.toString()));
+					
+					break;
 			}
 		}
 		else message.reply("Aeon " + Aeon.VERSION);
@@ -196,5 +223,10 @@ public class CommandAeon implements CommandExecutor
 	public List<String> getAliases()
 	{
 		return Collections.unmodifiableList(Arrays.asList("aeon"));
+	}
+	
+	public String getDescription()
+	{
+		return "Manages the core bot";
 	}
 }

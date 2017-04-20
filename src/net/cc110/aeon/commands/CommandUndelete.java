@@ -73,4 +73,9 @@ public class CommandUndelete implements CommandExecutor
 	{
 		return Collections.unmodifiableList(Arrays.asList("undelete"));
 	}
+	
+	public String getDescription()
+	{
+		return "Retrieves the last deleted message of the caller";
+	}
 }

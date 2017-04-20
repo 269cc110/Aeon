@@ -60,10 +60,19 @@ public class CommandCommand implements CommandExecutor
 					break;
 					
 				case "list":
-					return "Custom commands for this server: " + getCommandList(pm, id);
+					String commands = getCommandList(pm, id);
+					
+					return commands == null ? "No custom commands" + (pm ? "" : " for this server")
+							: "Custom commands" + (pm ? ": " : " for this server: ") + commands;
 			}
 		}
-		else return "Custom commands for this server: " + getCommandList(pm, id);
+		else
+		{
+			String commands = getCommandList(pm, id);
+			
+			return commands == null ? "No custom commands" + (pm ? "" : " for this server")
+					: "Custom commands" + (pm ? ": " : " for this server: ") + commands;
+		}
 		
 		return null;
 	}
@@ -73,15 +82,19 @@ public class CommandCommand implements CommandExecutor
 		return Collections.unmodifiableList(Arrays.asList("command"));
 	}
 	
+	public String getDescription()
+	{
+		return "Manages custom commands";
+	}
+	
 	private static String getCommandList(boolean pm, String id)
 	{
 		String prefix = Aeon.config.prefix + Aeon.config.prefix;
 		
 		Set<String> commands = Aeon.customCommands.getCommands(pm, id);
 		
-		List<String> sortedList = Util.getSortedList(commands)
-				.stream().map(t -> Util.monoQuote(prefix + t)).collect(Collectors.toList());
-		
-		return Util.concatenate(sortedList, ", ");
+		return commands.size() == 0 ? null
+				: Util.concatenate(commands.stream().sorted()
+						.map(t -> Util.monoQuote(prefix + t)).collect(Collectors.toList()));
 	}
 }

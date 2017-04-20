@@ -74,4 +74,9 @@ public class CommandFoodPorn implements AsyncCommandExecutor
 	{
 		return Collections.unmodifiableList(Arrays.asList("foodporn"));
 	}
+	
+	public String getDescription()
+	{
+		return "Returns the daily foodporn image from foodporndaily.com";
+	}
 }

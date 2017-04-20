@@ -30,4 +30,9 @@ public class CommandTwoInchBrush implements AsyncCommandExecutor
 	{
 		return Collections.unmodifiableList(Arrays.asList("twoinchbrush"));
 	}
+	
+	public String getDescription()
+	{
+		return "Returns a random painting by Bob Ross from the Joy of Painting";
+	}
 }

@@ -89,4 +89,9 @@ public class CommandColour implements CommandExecutor
 	{
 		return Collections.unmodifiableList(Arrays.asList("colour", "color"));
 	}
+	
+	public String getDescription()
+	{
+		return "Returns an image of a colour in hex";
+	}
 }

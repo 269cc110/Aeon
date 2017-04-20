@@ -46,7 +46,7 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 			String id = pm ? user.getId() : server.getId();
 			String content = message.getContent();
 			
-			System.out.println((pm ? "PM" : server.getName() + "#" + channel.getName()) + "#" + user.getName() + ": " + message.getContent());
+			System.out.println((pm ? "PM" : server.getName() + " #" + channel.getName()) + " " + user.getName() + ": " + message.getContent());
 			
 			String prefix = Aeon.config.prefix;
 			int prefixLength = prefix.length();
@@ -61,12 +61,11 @@ public class BotImpl implements FutureCallback<DiscordAPI>
 				{
 					if(content_.startsWith(prefix))
 					{
-						if(Aeon.config.asyncCustomCommands)
-							Aeon.pool.getExecutorService().execute(()
+						if(Aeon.config.asyncCustomCommands) Aeon.pool.getExecutorService().execute(()
 									-> handleCustomCommand(content_, prefixLength, pm, id, user, server_, game, message));
 						else handleCustomCommand(content_, prefixLength, pm, id, user, server_, game, message);
 					}
-					else Aeon.commandHandler.tryExecute(api, message, Util.tokenise(content_));
+					else Aeon.commandHandler.tryExecute(api_, message, Util.tokenise(content_));
 				}
 			}
 		});
